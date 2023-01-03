@@ -21,7 +21,10 @@ const query = (page: number) => gql`
   }
 `;
 
-export const useRickAndMortyApi = (success: (data: RickAndMortyCharacter[]) => void, failure: (error: unknown) => void) => {
+export const useRickAndMortyApi = (
+  success: (data: RickAndMortyCharacter[]) => void,
+  failure: (error: unknown) => void
+) => {
   const abortController = useRef(new AbortController());
   const nextPage = useRef<number>();
   const [loading, setLoading] = useState(true);
@@ -30,9 +33,13 @@ export const useRickAndMortyApi = (success: (data: RickAndMortyCharacter[]) => v
     try {
       setLoading(true);
 
-      const data = await request("https://rickandmortyapi.com/graphql", query(nextPage.current ?? 1), {
-        signal: abortController.current.signal,
-      });
+      const data = await request(
+        "https://rickandmortyapi.com/graphql",
+        query(nextPage.current ?? 1),
+        {
+          signal: abortController.current.signal,
+        }
+      );
 
       nextPage.current = data.characters.info.next;
       success(data.characters.results);
@@ -50,4 +57,4 @@ export const useRickAndMortyApi = (success: (data: RickAndMortyCharacter[]) => v
   }, []);
 
   return { loading, next: apiCall };
-}
+};

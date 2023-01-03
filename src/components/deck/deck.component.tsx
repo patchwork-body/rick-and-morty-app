@@ -31,7 +31,7 @@ const CardPaper = styled(Paper)`
   padding: 16px;
 `;
 
-const CARD_WIDTH = 300;
+const CARD_WIDTH = 280;
 const MIN_CARD_HEIGHT = 400;
 
 const CardBox = styled(Box)`
@@ -39,9 +39,9 @@ const CardBox = styled(Box)`
   flex-flow: column;
   justify-content: center;
   row-gap: 10px;
-  min-width: ${CARD_WIDTH}px;
+  width: ${CARD_WIDTH}px;
   min-height: ${MIN_CARD_HEIGHT}px;
-`
+`;
 
 export type DeckCardProps = {
   onTheTop?: boolean;
@@ -60,9 +60,11 @@ const DeckCardComponent: FC<DeckCardProps> = ({
   status,
   className,
 }) => {
-  const {dropCard} = useDeck(({dropCard}) => ({dropCard}));
-  const {layout} = useLayout(({layout}) => ({layout}));
-  const {flippedCardsIds, flipCard} = useFlippedCards(({flippedCardsIds, flipCard}) => ({flippedCardsIds, flipCard}));
+  const { dropCard } = useDeck(({ dropCard }) => ({ dropCard }));
+  const { layout } = useLayout(({ layout }) => ({ layout }));
+  const { flippedCardsIds, flipCard } = useFlippedCards(
+    ({ flippedCardsIds, flipCard }) => ({ flippedCardsIds, flipCard })
+  );
 
   const [{ x, y, scale, opacity, rotate, rotateY }, api] = useSpring(() => ({
     x: 0,
@@ -83,23 +85,32 @@ const DeckCardComponent: FC<DeckCardProps> = ({
   }));
 
   useEffect(() => {
-    if(layout === 'grid') {
+    if (layout === "grid") {
       const gap = 60;
-      const columns = Math.max(1, Math.min(3, Math.floor((window.innerWidth - CARD_WIDTH) / CARD_WIDTH)));
+      const columns = Math.max(
+        1,
+        Math.min(3, Math.floor((window.innerWidth - CARD_WIDTH) / CARD_WIDTH))
+      );
 
       api.start({
-        x: (serialNumber % columns) * (CARD_WIDTH + gap) - (CARD_WIDTH * columns + gap * (columns - 1)) / 2 + CARD_WIDTH / 2,
-        y: (MIN_CARD_HEIGHT + gap) * Math.floor(serialNumber / columns) - (window.innerHeight - MIN_CARD_HEIGHT) / 2 + 100,
+        x:
+          (serialNumber % columns) * (CARD_WIDTH + gap) -
+          (CARD_WIDTH * columns + gap * (columns - 1)) / 2 +
+          CARD_WIDTH / 2,
+        y:
+          (MIN_CARD_HEIGHT + gap) * Math.floor(serialNumber / columns) -
+          (window.innerHeight - MIN_CARD_HEIGHT) / 2 +
+          100,
 
         scale: 1,
         opacity: 1,
         rotate: 0,
 
-        config: {bounce: 0.2, mass: 1},
+        config: { bounce: 0.2, mass: 1 },
       });
     }
 
-    if (layout === 'stack') {
+    if (layout === "stack") {
       api.start({
         x: 0,
         y: 0,
@@ -107,7 +118,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
         opacity: 1,
         rotate: Math.random() * 10,
 
-        config: {bounce: 0.2, mass: 1},
+        config: { bounce: 0.2, mass: 1 },
       });
     }
   }, [layout]);
@@ -137,29 +148,43 @@ const DeckCardComponent: FC<DeckCardProps> = ({
     flipCard(id);
   };
 
-  const elevationLevel = layout === 'stack' && serialNumber < 10 ? onTheTop ? 3 : 1 : 0 || 1;
+  const elevationLevel =
+    layout === "stack" && serialNumber < 10 ? (onTheTop ? 3 : 1) : 0 || 1;
 
   return (
     <animated.div
-      {...(layout === 'stack' && onTheTop ? bind() : {})}
+      {...(layout === "stack" && onTheTop ? bind() : {})}
       style={{ x, y, scale, opacity, rotateY, rotate, touchAction: "none" }}
       className={className}
     >
       <CardPaper elevation={elevationLevel}>
-        <CardBox style={ isFlipped ? {transform: 'rotateY(-180deg)'} : {} }>
+        <CardBox style={isFlipped ? { transform: "rotateY(-180deg)" } : {}}>
           {isFlipped ? (
             <>
-              <Box display="grid" gridTemplateColumns="auto 1fr" >
+              <Box display="grid" gridTemplateColumns="auto 1fr">
                 <Avatar src={image} alt={name} />
 
-                <Typography variant="h6" display="flex" justifyContent="center" alignItems="center">
+                <Typography
+                  variant="h6"
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                >
                   Character Details
                 </Typography>
               </Box>
 
               <Divider />
 
-              <Typography variant="h5" display="flex" justifyContent="center" alignItems="center" textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
+              <Typography
+                variant="h5"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                textOverflow="ellipsis"
+                overflow="hidden"
+                whiteSpace="nowrap"
+              >
                 {name}
               </Typography>
 
@@ -200,14 +225,13 @@ const DeckCardComponent: FC<DeckCardProps> = ({
   );
 };
 
-const StyledDeckCardComponent = styled(DeckCardComponent)<{zIndex: number}>`
+const StyledDeckCardComponent = styled(DeckCardComponent)<{ zIndex: number }>`
   text-align: center;
   position: absolute;
   background-color: white;
-  z-index: ${({zIndex}) => zIndex};
+  z-index: ${({ zIndex }) => zIndex};
 `;
 
 export const Deck = Object.assign(memo(StyledDeckComponent), {
   Card: memo(StyledDeckCardComponent),
 });
-

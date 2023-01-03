@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { CircularProgress } from "@mui/material";
 import { useWheel } from "@use-gesture/react";
 import { FC, useEffect, useRef } from "react";
 import { Deck } from "./components/deck/deck.component";
@@ -10,27 +11,31 @@ type LoaderTriggerProps = {
   className?: string;
   top: number;
   onTrigger: () => void;
-}
+};
 
-const LoaderTrigger: FC<LoaderTriggerProps> = ({top, onTrigger, className}) => {
+const LoaderTrigger: FC<LoaderTriggerProps> = ({
+  top,
+  onTrigger,
+  className,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
-  const {layout} = useLayout(({ layout }) => ({layout}));
+  const { layout } = useLayout(({ layout }) => ({ layout }));
 
   useEffect(() => {
-    if(!ref.current) return;
-    if(layout === 'stack') return;
+    if (!ref.current) return;
+    if (layout === "stack") return;
 
     ref.current.style.top = `${top}px`;
   }, [layout, top]);
 
   useEffect(() => {
-    if(!ref.current) return;
-    if(layout === 'stack') return;
+    if (!ref.current) return;
+    if (layout === "stack") return;
 
     const element = ref.current;
 
     const observer = new IntersectionObserver(([entry]) => {
-      if(entry.isIntersecting) {
+      if (entry.isIntersecting) {
         onTrigger();
       }
     }, {});
@@ -39,8 +44,8 @@ const LoaderTrigger: FC<LoaderTriggerProps> = ({top, onTrigger, className}) => {
     return () => observer.unobserve(element);
   }, [layout]);
 
-  return <div ref={ref} className={className} onClick={onTrigger} />
-}
+  return <div ref={ref} className={className} onClick={onTrigger} />;
+};
 
 export const StyledLoaderTrigger = styled(LoaderTrigger)`
   position: absolute;
@@ -49,15 +54,30 @@ export const StyledLoaderTrigger = styled(LoaderTrigger)`
   min-width: 100vw;
   min-height: 20vh;
   border: 1px solid black;
-`
+`;
+
+const Center = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
 
 function App() {
-  const {cards, addCards} = useDeck(({cards, addCards}) => ({cards, addCards}));
-  const {showGrid, showStack} = useLayout(({showGrid, showStack}) => ({showGrid, showStack}));
-  const {loading, next} = useRickAndMortyApi(addCards, console.error);
+  const { cards, addCards } = useDeck(({ cards, addCards }) => ({
+    cards,
+    addCards,
+  }));
+
+  const { showGrid, showStack } = useLayout(({ showGrid, showStack }) => ({
+    showGrid,
+    showStack,
+  }));
+
+  const { loading, next } = useRickAndMortyApi(addCards, console.error);
 
   useEffect(() => {
-    if(!loading && cards.size < 7) {
+    if (!loading && cards.size < 7) {
       next();
     }
   }, [cards.size, loading]);
@@ -78,12 +98,24 @@ function App() {
     { target: document }
   );
 
-  console.log(ref.current?.scrollHeight)
+  if (cards.size === 0, loading) {
+    return (
+      <Center>
+        <CircularProgress />
+      </Center>
+    );
+  }
 
   return (
     <Deck ref={ref}>
       {[...cards].map(([, card], index) => (
-        <Deck.Card key={card.id} zIndex={cards.size - index} serialNumber={index} onTheTop={index === 0} {...card} />
+        <Deck.Card
+          key={card.id}
+          zIndex={cards.size - index}
+          serialNumber={index}
+          onTheTop={index === 0}
+          {...card}
+        />
       ))}
     </Deck>
   );
