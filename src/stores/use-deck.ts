@@ -4,6 +4,7 @@ import { create } from "./";
 type DeckStore = {
   cards: Map<number, RickAndMortyCharacter>;
   addCards: (cards: RickAndMortyCharacter[]) => void;
+  setDeck: (cards: RickAndMortyCharacter[]) => void;
   dropCard: (id: number) => void;
 };
 
@@ -17,6 +18,8 @@ export const useDeck = create<DeckStore>((set) => ({
         [...prev.cards].concat(cards.map((card) => [card.id, card]))
       ),
     })),
+
+  setDeck: (cards) => set((prev) => ({...prev, cards: new Map(cards.map((card) => [card.id, card])) })),
 
   dropCard: (id) =>
     set((prev) => {

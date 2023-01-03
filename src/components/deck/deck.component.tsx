@@ -12,27 +12,77 @@ import {
 import { Box } from "@mui/system";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import { FC, memo, useEffect } from "react";
+import { FC, ForwardedRef, forwardRef, HTMLAttributes, memo, useEffect, useMemo } from "react";
 import { useDeck } from "../../stores/use-deck";
 import { useFlippedCards } from "../../stores/use-flipped-cards";
 import { useLayout } from "../../stores/use-layout";
 import { RickAndMortyCharacter } from "../../types/rick-and-morty-character";
+import { StyledLoaderTrigger } from "../trigger/trigger.component";
 
-const StyledDeckComponent = styled.div`
+const CARD_WIDTH = 280;
+const MIN_CARD_HEIGHT = 400;
+const GAP = 60;
+
+const BottomMargin = styled.div<{top: number}>`
+  position: absolute;
+  top: ${({top}) => top}px;
+  height: 100px;
+  width: 100vw;
+  z-index: 100;
+`
+
+type DeckComponentProps = {
+  loading: boolean
+  onTrigger?: () => void;
+  ref?: ForwardedRef<HTMLDivElement>;
+} & HTMLAttributes<HTMLDivElement>
+
+const DeckComponent: FC<DeckComponentProps> = forwardRef(({className, loading, onTrigger, children}, ref: ForwardedRef<HTMLDivElement>) => {
+  const {cards, setDeck} = useDeck(({cards, setDeck}) => ({cards, setDeck}));
+  const {layout} = useLayout(({layout}) => ({layout}));
+
+  // Reset the deck when the layout changes -- Performance optimization
+  useEffect(() => {
+    if(layout === 'stack') {
+      setDeck([...cards].slice(0, 20).map(([id, card]) => ({...card, id})));
+    }
+  }, [layout]);
+
+
+  const topOffset = useMemo(() => {
+    const columns = Math.max(
+      1,
+      Math.min(3, Math.floor((window.innerWidth - CARD_WIDTH) / CARD_WIDTH))
+    );
+
+    return (Math.ceil(cards.size / columns)) * (MIN_CARD_HEIGHT + GAP);
+  }, [cards.size]);
+
+  return <div ref={ref} className={className}>
+    {children}
+
+    {layout === 'grid' && 
+      <>
+        <BottomMargin top={topOffset} />
+        {onTrigger && <StyledLoaderTrigger loading={loading} top={topOffset} onTrigger={onTrigger} />}
+      </>
+    }
+  </div>
+})
+
+const StyledDeckComponent = styled(DeckComponent)`
   position: relative;
   min-width: 100vw;
   min-height: 100vh;
   display: grid;
   place-items: center;
   overflow-y: auto;
+  background: #f5f5f5;
 `;
 
 const CardPaper = styled(Paper)`
   padding: 16px;
 `;
-
-const CARD_WIDTH = 280;
-const MIN_CARD_HEIGHT = 400;
 
 const CardBox = styled(Box)`
   display: flex;
@@ -62,6 +112,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
 }) => {
   const { dropCard } = useDeck(({ dropCard }) => ({ dropCard }));
   const { layout } = useLayout(({ layout }) => ({ layout }));
+
   const { flippedCardsIds, flipCard } = useFlippedCards(
     ({ flippedCardsIds, flipCard }) => ({ flippedCardsIds, flipCard })
   );
@@ -86,7 +137,6 @@ const DeckCardComponent: FC<DeckCardProps> = ({
 
   useEffect(() => {
     if (layout === "grid") {
-      const gap = 60;
       const columns = Math.max(
         1,
         Math.min(3, Math.floor((window.innerWidth - CARD_WIDTH) / CARD_WIDTH))
@@ -94,11 +144,11 @@ const DeckCardComponent: FC<DeckCardProps> = ({
 
       api.start({
         x:
-          (serialNumber % columns) * (CARD_WIDTH + gap) -
-          (CARD_WIDTH * columns + gap * (columns - 1)) / 2 +
+          (serialNumber % columns) * (CARD_WIDTH + GAP) -
+          (CARD_WIDTH * columns + GAP * (columns - 1)) / 2 +
           CARD_WIDTH / 2,
         y:
-          (MIN_CARD_HEIGHT + gap) * Math.floor(serialNumber / columns) -
+          (MIN_CARD_HEIGHT + GAP) * Math.floor(serialNumber / columns) -
           (window.innerHeight - MIN_CARD_HEIGHT) / 2 +
           100,
 
@@ -148,8 +198,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
     flipCard(id);
   };
 
-  const elevationLevel =
-    layout === "stack" && serialNumber < 10 ? (onTheTop ? 3 : 1) : 0 || 1;
+  const elevationLevel = layout === 'stack' ? onTheTop ? 3 : serialNumber < 7 && 1 || 0 : 1;
 
   return (
     <animated.div
@@ -177,12 +226,11 @@ const DeckCardComponent: FC<DeckCardProps> = ({
               <Divider />
 
               <Typography
-                variant="h5"
+                variant="h6"
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
                 textOverflow="ellipsis"
-                overflow="hidden"
                 whiteSpace="nowrap"
               >
                 {name}
@@ -212,7 +260,16 @@ const DeckCardComponent: FC<DeckCardProps> = ({
             <>
               <img src={image} draggable="false" />
 
-              <Typography variant="h6">{name}</Typography>
+              <Typography
+                variant="h6"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+              >
+                {name}
+              </Typography>
 
               <Button onClick={showDetails} variant="outlined">
                 Show Details
@@ -235,3 +292,4 @@ const StyledDeckCardComponent = styled(DeckCardComponent)<{ zIndex: number }>`
 export const Deck = Object.assign(memo(StyledDeckComponent), {
   Card: memo(StyledDeckCardComponent),
 });
+

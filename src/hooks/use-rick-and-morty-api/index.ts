@@ -56,5 +56,5 @@ export const useRickAndMortyApi = (
     return () => abortController.current.abort();
   }, []);
 
-  return { loading, next: apiCall };
+  return { loading, loadMore: apiCall };
 };
