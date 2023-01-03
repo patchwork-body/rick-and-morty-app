@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-type SetFn<T extends {}> = (fn: (prev: T) => T) => void;
+type SetFn<T extends {}> = (fn: (prev: T) => Partial<T>) => void;
 type Selector<T extends {}, R> = (state: T) => R;
 
 export const create = <T extends {}>(config: (set: SetFn<T>) => T) => {
@@ -14,7 +14,7 @@ export const create = <T extends {}>(config: (set: SetFn<T>) => T) => {
 
   _state = config((fn) => {
     const prevState = getState();
-    const newState = fn(prevState);
+    const newState = {...prevState, ...fn(prevState)};
     subscribers.forEach((fn) => fn(newState));
     _state = newState;
     return newState;

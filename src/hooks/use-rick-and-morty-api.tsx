@@ -1,6 +1,6 @@
 import { gql, request } from "graphql-request";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { RickAndMortyCharacter } from "../../types/rick-and-morty-character";
+import { RickAndMortyCharacter } from "~/types/rick-and-morty-character";
 
 const query = (page: number) => gql`
   query {

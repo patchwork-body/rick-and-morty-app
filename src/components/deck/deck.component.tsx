@@ -23,7 +23,7 @@ const CARD_WIDTH = 280;
 const MIN_CARD_HEIGHT = 400;
 const GAP = 60;
 
-const BottomMargin = styled.div<{top: number}>`
+export const BottomMargin = styled.div<{top: number}>`
   position: absolute;
   top: ${({top}) => top}px;
   height: 100px;
@@ -147,6 +147,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
           (serialNumber % columns) * (CARD_WIDTH + GAP) -
           (CARD_WIDTH * columns + GAP * (columns - 1)) / 2 +
           CARD_WIDTH / 2,
+
         y:
           (MIN_CARD_HEIGHT + GAP) * Math.floor(serialNumber / columns) -
           (window.innerHeight - MIN_CARD_HEIGHT) / 2 +

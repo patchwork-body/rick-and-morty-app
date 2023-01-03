@@ -1,7 +1,7 @@
-import { RickAndMortyCharacter } from "../types/rick-and-morty-character";
+import { RickAndMortyCharacter } from "~/types/rick-and-morty-character";
 import { create } from "./";
 
-type DeckStore = {
+export type DeckStore = {
   cards: Map<number, RickAndMortyCharacter>;
   addCards: (cards: RickAndMortyCharacter[]) => void;
   setDeck: (cards: RickAndMortyCharacter[]) => void;
@@ -13,18 +13,18 @@ export const useDeck = create<DeckStore>((set) => ({
 
   addCards: (cards) =>
     set((prev) => ({
-      ...prev,
       cards: new Map(
         [...prev.cards].concat(cards.map((card) => [card.id, card]))
       ),
     })),
 
-  setDeck: (cards) => set((prev) => ({...prev, cards: new Map(cards.map((card) => [card.id, card])) })),
+  setDeck: (cards) => set(() => ({cards: new Map(cards.map((card) => [card.id, card])) })),
 
   dropCard: (id) =>
     set((prev) => {
       const cards = new Map(prev.cards);
       cards.delete(id);
-      return { ...prev, cards };
+      return { cards };
     }),
 }));
+

@@ -12,11 +12,10 @@ export const useFlippedCards = create<FlippedCardsStore>((set) => ({
       if (prev.flippedCardsIds.has(id)) {
         const flippedCardsIds = new Set(prev.flippedCardsIds);
         flippedCardsIds.delete(id);
-        return { ...prev, flippedCardsIds: flippedCardsIds };
+        return { flippedCardsIds: flippedCardsIds };
       }
 
       return {
-        ...prev,
         flippedCardsIds: new Set([...prev.flippedCardsIds, id]),
       };
     }),
