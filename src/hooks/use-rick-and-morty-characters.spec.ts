@@ -1,11 +1,11 @@
 import { renderHook, waitFor } from "@testing-library/react"
-import { useRickAndMortyApi } from "./use-rick-and-morty-api"
+import { useRickAndMortyCharacters } from "./use-rick-and-morty-characters"
 
 describe('useRickAndMortyApi()', () => {
   it('should has loading true until onSuccess or onFailure will be called', async () => {
     const onSuccess = jest.fn()
     const onFailure = jest.fn()
-    const {result} = renderHook(() => useRickAndMortyApi(onSuccess, onFailure))
+    const {result} = renderHook(() => useRickAndMortyCharacters(onSuccess, onFailure))
 
     expect(onSuccess).not.toBeCalled()
     expect(onFailure).not.toBeCalled()

@@ -2,17 +2,12 @@ import styled from "@emotion/styled";
 import { CircularProgress, LinearProgress } from "@mui/material";
 import { useWheel } from "@use-gesture/react";
 import {  useEffect, useRef } from "react";
+import { Center } from "./components/center/center.component";
 import { Deck } from "./components/deck/deck.component";
-import { useRickAndMortyApi } from "./hooks/use-rick-and-morty-api";
+import { Sidebar } from "./components/sidebar/sidebar.component";
+import { useRickAndMortyCharacters } from "./hooks/use-rick-and-morty-characters";
 import { useDeck } from "./stores/use-deck";
 import { useLayout } from "./stores/use-layout";
-
-const Center = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-`;
 
 function App() {
   const { cards, addCards } = useDeck(({ cards, addCards }) => ({
@@ -25,7 +20,7 @@ function App() {
     showStack,
   }));
 
-  const { loading, loadMore } = useRickAndMortyApi(addCards, console.error);
+  const { loading, loadMore } = useRickAndMortyCharacters(addCards, console.error);
 
   useEffect(() => {
     if (!loading && cards.size < 7) {
@@ -46,7 +41,7 @@ function App() {
       }
     },
 
-    { target: document }
+    { target: document.getElementById("deck")! }
   );
 
   return (
@@ -72,6 +67,8 @@ function App() {
               />
             ))}
           </Deck>
+
+          <Sidebar />
         </>
       )
   );

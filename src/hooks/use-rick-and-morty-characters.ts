@@ -21,7 +21,7 @@ const query = (page: number) => gql`
   }
 `;
 
-export const useRickAndMortyApi = (
+export const useRickAndMortyCharacters = (
   success: (data: RickAndMortyCharacter[]) => void,
   failure: (error: unknown) => void
 ) => {

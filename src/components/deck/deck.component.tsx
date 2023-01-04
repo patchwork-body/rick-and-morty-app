@@ -11,13 +11,15 @@ import {
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { animated, useSpring } from "@react-spring/web";
-import { useDrag } from "@use-gesture/react";
 import { FC, ForwardedRef, forwardRef, HTMLAttributes, memo, useEffect, useMemo } from "react";
+import InfoIcon from '@mui/icons-material/Info';
 import { useDeck } from "../../stores/use-deck";
-import { useFlippedCards } from "../../stores/use-flipped-cards";
 import { useLayout } from "../../stores/use-layout";
-import { RickAndMortyCharacter } from "../../types/rick-and-morty-character";
 import { StyledLoaderTrigger } from "../trigger/trigger.component";
+import { RickAndMortyCharacter } from "../../types/rick-and-morty-character";
+import { useFlippedCards } from "../../stores/use-flipped-cards";
+import { useSidebar } from "../../stores/use-sidebar";
+import { useDrag } from "@use-gesture/react";
 
 const CARD_WIDTH = 280;
 const MIN_CARD_HEIGHT = 400;
@@ -58,7 +60,7 @@ const DeckComponent: FC<DeckComponentProps> = forwardRef(({className, loading, o
     return (Math.ceil(cards.size / columns)) * (MIN_CARD_HEIGHT + GAP);
   }, [cards.size]);
 
-  return <div ref={ref} className={className}>
+  return <div id="deck" ref={ref} className={className}>
     {children}
 
     {layout === 'grid' && 
@@ -112,6 +114,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
 }) => {
   const { dropCard } = useDeck(({ dropCard }) => ({ dropCard }));
   const { layout } = useLayout(({ layout }) => ({ layout }));
+  const {showSidebar} = useSidebar(({ showSidebar }) => ({ showSidebar }));
 
   const { flippedCardsIds, flipCard } = useFlippedCards(
     ({ flippedCardsIds, flipCard }) => ({ flippedCardsIds, flipCard })
@@ -199,7 +202,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
     flipCard(id);
   };
 
-  const elevationLevel = layout === 'stack' ? onTheTop ? 3 : serialNumber < 7 && 1 || 0 : 1;
+  const elevationLevel = layout === 'stack' ? onTheTop ? 3 : (serialNumber < 7 && 1) || 0 : 1;
 
   return (
     <animated.div
@@ -211,7 +214,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
         <CardBox style={isFlipped ? { transform: "rotateY(-180deg)" } : {}}>
           {isFlipped ? (
             <>
-              <Box display="grid" gridTemplateColumns="auto 1fr">
+              <Box display="grid" gridTemplateColumns="auto 1fr auto">
                 <Avatar src={image} alt={name} />
 
                 <Typography
@@ -222,6 +225,10 @@ const DeckCardComponent: FC<DeckCardProps> = ({
                 >
                   Character Details
                 </Typography>
+
+                <Button onClick={() => showSidebar(id)}>
+                  <InfoIcon />
+                </Button>
               </Box>
 
               <Divider />
@@ -259,7 +266,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
             </>
           ) : (
             <>
-              <img src={image} draggable="false" />
+              <img src={image} draggable="false" alt={name} />
 
               <Typography
                 variant="h6"
