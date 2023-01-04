@@ -2,9 +2,9 @@ import { gql, request } from "graphql-request";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { RickAndMortyCharacter } from "~/types/rick-and-morty-character";
 
-const query = (page: number) => gql`
+const query = (page: number, nameFilter: string) => gql`
   query {
-    characters(page: ${page}) {
+    characters(page: ${page}, filter: { name: "${nameFilter.toLowerCase()}" }) {
       info {
         next
       }
@@ -22,12 +22,13 @@ const query = (page: number) => gql`
 `;
 
 export const useRickAndMortyCharacters = (
-  success: (data: RickAndMortyCharacter[]) => void,
-  failure: (error: unknown) => void
+  nameFilter: string,
 ) => {
   const abortController = useRef(new AbortController());
   const nextPage = useRef<number>();
   const [loading, setLoading] = useState(true);
+  const [characters, setCharacters] = useState<RickAndMortyCharacter[]>([]);
+  const [error, setError] = useState<Error>();
 
   const apiCall = useCallback(async () => {
     try {
@@ -35,26 +36,26 @@ export const useRickAndMortyCharacters = (
 
       const data = await request(
         "https://rickandmortyapi.com/graphql",
-        query(nextPage.current ?? 1),
+        query(nextPage.current ?? 1, nameFilter),
         {
           signal: abortController.current.signal,
         }
       );
 
       nextPage.current = data.characters.info.next;
-      success(data.characters.results);
+      setCharacters(data.characters.results);
     } catch (error) {
-      failure(error);
+      setError(error as Error);
     } finally {
       setLoading(false);
     }
-  }, [success, failure]);
+  }, [nameFilter]);
 
   // Fetch data on mount and abort fetch on unmount
   useEffect(() => {
     apiCall();
     return () => abortController.current.abort();
-  }, []);
+  }, [nameFilter]);
 
-  return { loading, loadMore: apiCall };
+  return { loading, loadMore: apiCall, characters, error };
 };

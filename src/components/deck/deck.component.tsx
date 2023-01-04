@@ -239,6 +239,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
                 justifyContent="center"
                 alignItems="center"
                 textOverflow="ellipsis"
+                overflow="auto"
                 whiteSpace="nowrap"
               >
                 {name}
@@ -274,6 +275,7 @@ const DeckCardComponent: FC<DeckCardProps> = ({
                 justifyContent="center"
                 alignItems="center"
                 textOverflow="ellipsis"
+                overflow="auto"
                 whiteSpace="nowrap"
               >
                 {name}

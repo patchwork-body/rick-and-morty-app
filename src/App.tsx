@@ -1,18 +1,21 @@
 import styled from "@emotion/styled";
 import { CircularProgress, LinearProgress } from "@mui/material";
 import { useWheel } from "@use-gesture/react";
-import {  useEffect, useRef } from "react";
+import {  useEffect, useRef, useState } from "react";
+import { useDebounce } from "use-debounce";
 import { Center } from "./components/center/center.component";
 import { Deck } from "./components/deck/deck.component";
+import { Filter } from "./components/search/search.components";
 import { Sidebar } from "./components/sidebar/sidebar.component";
 import { useRickAndMortyCharacters } from "./hooks/use-rick-and-morty-characters";
 import { useDeck } from "./stores/use-deck";
 import { useLayout } from "./stores/use-layout";
 
 function App() {
-  const { cards, addCards } = useDeck(({ cards, addCards }) => ({
+  const { cards, addCards, setDeck } = useDeck(({ cards, addCards, setDeck }) => ({
     cards,
     addCards,
+    setDeck,
   }));
 
   const { showGrid, showStack } = useLayout(({ showGrid, showStack }) => ({
@@ -20,10 +23,21 @@ function App() {
     showStack,
   }));
 
-  const { loading, loadMore } = useRickAndMortyCharacters(addCards, console.error);
+  const [filter, setFilter] = useState("");
+  const [nameFilter] = useDebounce(filter, 500);
+
+  const { characters, error, loading, loadMore } = useRickAndMortyCharacters(nameFilter);
 
   useEffect(() => {
-    if (!loading && cards.size < 7) {
+    setDeck([]);
+  }, [nameFilter]);
+
+  useEffect(() => {
+    addCards(characters);
+  }, [characters]);
+
+  useEffect(() => {
+    if (!loading && !error && cards.size < 7) {
       loadMore();
     }
   }, [cards.size, loading]);
@@ -69,6 +83,7 @@ function App() {
           </Deck>
 
           <Sidebar />
+          <Filter onFilter={setFilter} />
         </>
       )
   );
