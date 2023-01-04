@@ -18,7 +18,8 @@ function App() {
     setDeck,
   }));
 
-  const { showGrid, showStack } = useLayout(({ showGrid, showStack }) => ({
+  const { layout, showGrid, showStack } = useLayout(({ layout, showGrid, showStack }) => ({
+    layout,
     showGrid,
     showStack,
   }));
@@ -83,7 +84,7 @@ function App() {
           </Deck>
 
           <Sidebar />
-          <Filter onFilter={setFilter} />
+          {layout === 'stack' && <Filter onFilter={setFilter} /> }
         </>
       )
   );

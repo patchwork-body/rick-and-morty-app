@@ -64,5 +64,6 @@ const FilterComponent: FC<FilterProps> = ({onFilter, className}) => {
 export const Filter = memo(styled(FilterComponent)`
   position: absolute;
   top: 85%;
+  z-index: 100;
 `);
 
