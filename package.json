@@ -68,6 +68,6 @@
     "@mdx-js/react": "^1.6.22",
     "babel-plugin-named-exports-order": "^0.0.2",
     "prop-types": "^15.8.1",
-    "webpack": "^5.75.0"
+    "webpack": "^5.76.0"
   }
 }
